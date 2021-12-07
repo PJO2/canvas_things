@@ -1,0 +1,86 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+</head>
+<body>
+
+<H1> 2 Canvas chart</H1>
+<div class="chart" style="position: relative; height:80vh; width:100vw">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script>
+
+
+function BuildChart(labels, values, chartTitle) {
+  var data = {
+    labels: labels,
+    datasets: [{
+      label: chartTitle, // Name the series
+      data: values,
+      backgroundColor: ['rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+        'rgb(54, 162, 235)',
+      ],
+    }],
+  };
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'horizontalBar',
+    data: data,
+    options: {
+      responsive: true, // Instruct chart JS to respond nicely.
+      maintainAspectRatio: false, // Add to prevent default behavior of full-width/height 
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: '$ Billion'
+          },
+          ticks: { beginAtZero: true, },
+        }],
+        yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Name'
+          }
+        }]
+      },
+    }
+  });
+  return myChart;
+}
+
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function () {
+  if (this.readyState == 4 && this.status == 200) {
+    var json = JSON.parse(this.response);
+    // Map JSON labels  back to values array
+    var labels = json.map(function (e) {
+      return e.person.name;
+    });
+    // Map JSON values back to values array
+    var values = json.map(function (e) {
+      return (e.finalWorth / 1000); // Divide to billions in units of ten
+    });
+    BuildChart(labels, values, "Real Time Net Worth"); // Pass in data and call the chart
+  }
+};
+
+xhttp.open("GET", "https://forbes400.herokuapp.com/api/forbes400?limit=10", false);
+xhttp.send();
+
+</script>
+
+
+</body>
+</html>
+
