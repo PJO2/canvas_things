@@ -2,7 +2,7 @@
 
 Some tests for creating dynamic charts.
 
-## with pyplot and save png
+## with pyplot which create png on the serv er and send it to the client
 
-## with chart.js opensource javascript and json flow
+## with HTML canvas element, chart.js opensource javascript and json flow
 

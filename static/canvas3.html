@@ -1,0 +1,80 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+      crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+
+</head>
+<body>
+
+<H1>Dynamic Canvas chart</H1>
+<div class="chart d-flex justify-content-center align-items-center" style="position: relative; height:80vh; width:100vw">
+       <canvas id="dummy"></canvas>
+       <div class="spinner-border" id="loading-spinner"></div>
+       <canvas id="myChart"></canvas>
+</div>
+<hr>
+
+
+<script>
+function BuildChart(labels, values, chartTitle) {
+  var data = {
+    labels: labels,
+    datasets: [{
+      label: chartTitle, // Name the series
+      data: values,
+      fill: false,
+    }],
+  };
+  var ctx = document.getElementById("myChart").getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true, // Instruct chart JS to respond nicely.
+      maintainAspectRatio: false, // Add to prevent default behavior of full-width/height 
+      scales: {
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'name'
+          },
+        }],
+        yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'value'
+          },
+          ticks: { beginAtZero: true, },
+        }]
+      },
+    }
+  });
+  return myChart;
+}
+
+
+var xhttp = new XMLHttpRequest();
+
+xhttp.onreadystatechange = function () {
+  if (this.readyState == 4 && this.status == 200) {
+
+    var json = JSON.parse(this.response);
+    // Map JSON labels  back to values array
+    var labels = json.data.map(function (e) { return e.time; });
+    var values = json.data.map(function (e) { return (e.value); });
+    document.getElementById("loading-spinner").style.visibility = "hidden"; 
+    // document.getElementById("loading-spinner").style.display = "none"; 
+    BuildChart(labels, values, "Canvas sample by PJO"); // Pass in data and call the chart
+  }
+};
+
+xhttp.open("GET", "/json/mydataset", true); // true means async call
+xhttp.send();
+
+</script>
+
+</body>
+</html>
+
