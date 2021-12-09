@@ -22,20 +22,28 @@ def home():
     """ collection of tries """
     return flask.render_template('index.html')
 
+# -------------------
+# canvas corner 
+# -------------------
+
 # static and images :
 @app.route('/static/<path:path>')
 def send_static(path):
     """ static file: return the file without parsing """
     return send_from_directory('static', path)
 
-@app.route('/json/mydataset')
-def return_json_dataset():
+@app.route('/json/<dataset>')
+def return_json_dataset(dataset):
     """ return a demo dataset in json format """
-    time.sleep (3)
+    time.sleep (1)
     DATASET = { 'data': [] }
     for i in range (0,6):
-      DATASET['data'].append (  { 'time': 1638893700 + 10*i, 'value':  random.randint(10, 15) } )
+      DATASET['data'].append (  { 'time': 1638893700 + 10*i, 'value':  random.randint(1, 15) } )
     return DATASET
+
+@app.route('/halfstatic/<path>')
+def send_tmpl(path):
+    return flask.render_template (path);
 
 # -------------------
 # matplotlib corner 

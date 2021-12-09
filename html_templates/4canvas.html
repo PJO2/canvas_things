@@ -1,0 +1,109 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+      crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+
+</head>
+<body>
+
+<script>
+var chart_data = {};
+
+function InitChart(dataset) {
+
+     function BuildChart(labels, values, chartTitle) {
+       var data = {
+         labels: labels,
+         datasets: [{
+           label: chartTitle, // Name the series
+           data: values,
+           fill: false,
+         }],
+       };
+       var ctx = document.getElementById("chart_" + dataset).getContext('2d');
+       var myChart = new Chart(ctx, {
+         type: 'line',
+         data: data,
+         options: {
+           responsive: true, // Instruct chart JS to respond nicely.
+           maintainAspectRatio: true, // Add to prevent default behavior of full-width/height 
+           scales: {
+             xAxes: [{
+               scaleLabel: {
+                 display: true,
+                 labelString: 'name'
+               },
+             }],
+             yAxes: [{
+               scaleLabel: {
+                 display: true,
+                 labelString: 'value'
+               },
+               ticks: { beginAtZero: true, },
+             }]
+           },
+         }
+       });
+       return myChart;
+     } // BuildChart
+
+    var xhttp = new XMLHttpRequest();
+    chart_data[dataset] = {}
+ 
+    xhttp.onreadystatechange = function () {
+       if (this.readyState == 4 && this.status == 200) {
+           var json = JSON.parse(this.response);
+           // Map JSON labels  back to values array
+           var labels = json.data.map(function (e) { return e.time; });
+           var values = json.data.map(function (e) { return (e.value); });
+           document.getElementById("loading-spinner_" + dataset).style.visibility = "hidden"; 
+            chart_data[dataset]['chart']  = BuildChart(labels, values, "dataset: " + dataset); // Pass in data and call the chart
+       }
+    };
+
+    // ask asynchrnously for data and wait for onreadstatechage callback
+    xhttp.open("GET", "/json/" + dataset, true); // true means async call
+    xhttp.send();
+} // InitChart
+
+function NewChart (dataset) {
+    document.getElementById("loading-spinner_" + dataset).style.visibility = "visible"; 
+    if (dataset in chart_data) { chart_data[dataset]['chart'].destroy(); }
+    InitChart (dataset);
+}
+
+</script>
+<H1>Dynamic Canvas charts with refresh button</H1>
+<div class="container" style="height: 900px;">
+
+{% for dataset in ["randdom1", "random2", "random3", "random4"] %}
+   {% if loop.index0 %2 == 0 %}
+   <div class="row">
+   {% endif %}
+      <div class="col-md-6">
+         <div class="row">
+            <div class="chart d-flex justify-content-center align-items-center" style="position: relative; height:100%; width:100%">
+               <canvas id="dummy"></canvas>
+               <div class="spinner-border" id="loading-spinner_{{ dataset }}" ></div>
+               <canvas id="chart_{{ dataset }}"></canvas><script>NewChart( '{{ dataset }}' );</script>
+            </div>
+            <div class="col text-center">
+               <button type="button" class="btn btn-primary btn-sm" id="redraw" onclick="NewChart( '{{ dataset }}' )">Redraw</button>
+            </div>
+         </div>  <!-- same box -->
+      </div>  <!-- 6 cols out of 12 -->
+   {% if loop.index0 % 2 == 1 %}
+   </div>
+   <br>
+   {% endif %}
+{% endfor %}
+</div> <!-- container -->
+<hr>
+
+
+
+</body>
+</html>
+
